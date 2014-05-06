@@ -3,7 +3,7 @@ package com.wavemaker.restinvoker.invoker;
 import com.wavemaker.restinvoker.models.MetaModel;
 import com.wavemaker.restinvoker.models.MetaOperationModel;
 import com.wavemaker.restinvoker.models.RuntimeRequestModel;
-import com.wavemaker.restinvoker.utils.PathUtils;
+import com.wavemaker.restinvoker.utils.Utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,14 +44,8 @@ public class Caller {
 
     private CallerArguments buildCallerArguments(String basePath, String contentType, String responseType,
                                                  Arguments args) {
-        String path = buildRequestPath(basePath, args);
+        // adding query params to the url.
+        String path = Utils.updatePathWithQueryParams(basePath, args.getQueryArgs());
         return new CallerArguments(path, contentType, responseType, args);
     }
-
-    private String buildRequestPath(final String basePath, final Arguments arguments) {
-        String path = basePath;
-        path = PathUtils.updatePathWithQueryParams(path, arguments.getQueryArgs());
-        return path;
-    }
-
 }

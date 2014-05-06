@@ -18,6 +18,11 @@ public class InvokerService {
         return new Caller().call(metaModel, requestModel);
     }
 
+    // TODO write matcher for selecting appropriate meta model.
+    public String invoke(RuntimeRequestModel requestModel) {
+        return null;
+    }
+
     public String invoke(RequestModel requestModel) {
         return invoke(requestModel.getMetaModel(), requestModel.getRequestModel());
     }

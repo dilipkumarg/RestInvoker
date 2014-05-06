@@ -24,6 +24,7 @@ public class RestInvokerController {
     @Autowired
     private InvokerService invokerService;
 
+    // for test added. delete it later.
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public
     @ResponseBody
@@ -41,6 +42,7 @@ public class RestInvokerController {
     String invoke(@RequestBody RequestModel requestModel) {
         return invokerService.invoke(requestModel);
     }
+
 
     private MetaModel dummyMetaModel() {
         MetaModel metaModel = new MetaModel();

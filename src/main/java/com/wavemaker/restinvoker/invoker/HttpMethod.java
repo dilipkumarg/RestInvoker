@@ -1,5 +1,6 @@
 package com.wavemaker.restinvoker.invoker;
 
+import com.wavemaker.restinvoker.utils.Utils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -13,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * @author Dilip Kumar.
@@ -23,14 +25,25 @@ public enum HttpMethod {
         @Override
         String doRequest(CallerArguments callerArguments) {
             RestTemplate restTemplate = new RestTemplate();
+
             Map<String, String> formArgs = callerArguments.getArguments().getFormArgs();
 
+            String path = callerArguments.getPath();
             if (formArgs != null && !formArgs.isEmpty()) {
-                // TODO add form parameters to url
+                path = Utils.updatePathWithQueryParams(path, formArgs);
             }
-
-            return restTemplate.getForObject(callerArguments.getPath(), String.class,
-                    callerArguments.getArguments().getPathArgs());
+            LOGGER.info("Requesting Url:" + path);
+            Map<String, String> pathArgs = callerArguments.getArguments().getPathArgs();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(MediaType.parseMediaTypes(callerArguments.getContentType()));
+            HttpEntity<?> httpEntity = new HttpEntity<String>(null, headers);
+            return restTemplate.exchange(path, org.springframework.http.HttpMethod.GET, httpEntity, String.class, pathArgs).getBody();
+            /*if (!pathArgs.isEmpty()) {
+                return restTemplate.getForObject(path, String.class,
+                        callerArguments.getArguments().getPathArgs());
+            } else {
+                return restTemplate.getForObject(path, String.class);
+            }*/
         }
     },
     POST {
@@ -63,6 +76,7 @@ public enum HttpMethod {
             return "";
         }
     };
+    private final static Logger LOGGER = Logger.getLogger(HttpMethod.class.getName());
 
     abstract String doRequest(CallerArguments callerArguments);
 
@@ -79,7 +93,6 @@ public enum HttpMethod {
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             configureRestTemplateForFormParams(restTemplate);
             MultiValueMap<String, String> map = buildFormArgs(args.getFormArgs());
-
             httpEntity = new HttpEntity<MultiValueMap<String, String>>(map, headers);
         } else if (args.getBodyArg() != null && !args.getBodyArg().isEmpty()) {
             httpEntity = new HttpEntity<String>(args.getBodyArg(), headers);
